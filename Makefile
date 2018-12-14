@@ -1,8 +1,12 @@
-CFLAGS = -O0 -Wall -Wno-misleading-indentation
+# CFLAGS = -Wall -Wno-misleading-indentation
+CFLAGS = -g -no-pie -fno-pie -fsigned-char -Wall -Wno-misleading-indentation
+#CFLAGS = -g -no-pie -fno-pie -fsigned-char -Wall -Wno-misleading-indentation -I./MyLib/include
 OBJ_DIR = elf
 TEST_DIR = tests
 TEST_SRC = $(wildcard $(TEST_DIR)/*.c)
 TEST_OBJ = $(TEST_SRC:.c=.o)
+LDFLAGS = -ldl
+# LDFLAGS = -Wl,-rpath,'$$ORIGIN/MyLib/build' -L./MyLib/build -ldl -lmylib
 
 BIN = amacc
 EXEC = $(BIN) $(BIN)-native
@@ -15,13 +19,14 @@ include mk/python.mk
 all: $(EXEC)
 $(BIN): $(BIN).c
 	$(VECHO) "  CC+LD\t\t$@\n"
-	$(Q)$(ARM_CC) $(CFLAGS) -o $@ $< -g -ldl
+	$(Q)$(ARM_CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
 
 $(BIN)-native: $(BIN).c
 	$(VECHO) "  CC+LD\t\t$@\n"
-	$(Q)$(CC) $(CFLAGS) -o $@ $< \
+	$(Q)$(CC)  \
 	    -Wno-pointer-to-int-cast -Wno-int-to-pointer-cast -Wno-format \
-	    -ldl
+		$(CFLAGS) -o $@ $< $(LDFLAGS)
+
 ## Run tests and show message
 check: $(EXEC) $(TEST_OBJ)
 	$(VECHO) "[ C to IR translation          ]"

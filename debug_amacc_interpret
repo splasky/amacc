@@ -1,0 +1,2 @@
+qemu-arm -L /usr/arm-linux-gnueabihf -g 1234 ./amacc $1.c &
+gdb-multiarch ./amacc -x gdb_init

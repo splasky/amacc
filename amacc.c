@@ -237,6 +237,44 @@ enum { CHAR, INT, PTR = 256, PTR2 = 512 };
 // ELF generation
 char **plt_func_addr;
 
+int ast_dump(int* aast, int* nn)
+{
+    int *ptr, *ptr2, *ptr3;
+    int i;
+    int err_cnt;
+    ptr = aast;
+    ptr2 = nn;
+    printf("ast dump!\n");
+    while (ptr2 != ptr) {
+            printf("%d:", ptr2);
+            printf("%d", *ptr2++);
+        printf("\n");
+    }
+    return 0;
+}
+
+int IR_dump(int* emit)
+{
+    int *E, *e_;
+    E = emit;
+    e_ = e;
+
+    printf("IR dump!\n");
+    while (E++ < e_) {
+        printf("%d:",E);
+        if (*E < LEV) {
+            printf("%d", *E);
+            E++;
+            printf(",%d", *E);
+        }
+        else {
+            printf("%d", *E);
+        }
+        printf("\n");
+    }
+    return 0;
+}
+
 char *append_strtab(char **strtab, char *str)
 {
     char *s;
