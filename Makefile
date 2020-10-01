@@ -5,11 +5,12 @@ OBJ_DIR = elf
 TEST_DIR = tests
 TEST_SRC = $(wildcard $(TEST_DIR)/*.c)
 TEST_OBJ = $(TEST_SRC:.c=.o)
+VM_DIR = vm
 LDFLAGS = -ldl
-# LDFLAGS = -Wl,-rpath,'$$ORIGIN/MyLib/build' -L./MyLib/build -ldl -lmylib
+export CFLAGS
 
 BIN = amacc
-EXEC = $(BIN) $(BIN)-native
+EXEC = $(BIN) $(BIN)-native amacc_vm
 
 include mk/arm.mk
 include mk/common.mk
@@ -72,6 +73,11 @@ help:
 dump-ir: $(BIN)
 	@$(ARM_EXEC) $(BIN) -s $(FILE)
 
+## Build vm
+amacc_vm:
+	$(MAKE) -C $(VM_DIR)
+
 ## Remove all generated files
 clean:
 	$(RM) $(EXEC) $(OBJ_DIR)/* elf/* out-gcc/*
+	$(MAKE) -C $(VM_DIR) clean
