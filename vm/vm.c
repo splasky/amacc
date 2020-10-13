@@ -12,10 +12,11 @@
 
 int amacc_vm(int argc, char* argv[])
 {
-    intptr_t *sp, *bp; // vm registers
-    intptr_t *t, *ret;
+    // FIXME: may be change to correct type
+    uint64_t *sp, *bp; // vm registers
+    uint64_t *t, *ret;
     int64_t r0, cycle;
-    intptr_t *args, nu;
+    uint64_t *args, nu;
     struct str_t *str;
 
     // find main
@@ -27,19 +28,21 @@ int amacc_vm(int argc, char* argv[])
 
     pc = get_code_entry(sym->hash);
 
-    if (!(sp = malloc(sizeof(intptr_t) * POOLSZ))) {
+    if (!(sp = malloc(sizeof(uint64_t) * POOLSZ))) {
         printf("could not malloc(%d) stack area\n", POOLSZ);
         exit(ERR_NOT_ENOUGH_MEMORY);
     }
 
 
     // setup stack
-    sp = (intptr_t*)sp + POOLSZ;
-    // cdecl is right to left order
-    *--sp = ts_code;
-    *--sp = (intptr_t)argv; 
-    *--sp = argc; 
-    bp = sp; 
+    t = sp;
+    sp = sp + POOLSZ;
+    *sp = t; // The top of stack, Don't execute here. TODO: Can be modified
+    bp = sp;
+    *--sp = ts_code; // padding
+    *--sp = argc;
+    *--sp = argv;
+    *--sp = ts_code; // main exit
 
     r0 = 0;
     cycle = 0;
@@ -47,7 +50,7 @@ int amacc_vm(int argc, char* argv[])
         ++cycle;
         switch (pc->ir) {
         case LEA:
-            r0 = (int64_t)(*bp + pc->arg * 4);
+            r0 = (int64_t*)(bp + pc->arg); // TODO:On arm machine this may be change to "+"
             break;
         case IMM:
             r0 = pc->arg; // load global address or immediate
@@ -66,7 +69,7 @@ int amacc_vm(int argc, char* argv[])
             pc = r0 ? get_code_entry(pc->arg) : pc + 1; // branch if not zero
             continue;
         case ENT:
-            *--sp = (int64_t)bp;
+            *--sp = bp;
             bp = sp;
             sp = sp - pc->arg; // enter subroutine
             break;
@@ -74,24 +77,24 @@ int amacc_vm(int argc, char* argv[])
             sp = sp + pc->arg; // stack adjust
             break;
         case LEV:
-            sp = *bp;
-            bp = *++sp;
-            pc = *++sp;
+            sp = bp;
+            bp = (int64_t*)*sp++;
+            pc = (int64_t*)*sp++;
             continue;
         case LI:
-            r0 = *(int64_t*)r0; // load int
+            r0 = *(uint64_t*)r0; // load int
             break;
         case LC:
             // load char
             str = get_str_entry(r0);
             if(!str) r0 = *(char*)r0;
-            else r0 = *(intptr_t*)str->str;
+            else r0 = *(int64_t*)str->str;
             break;
         case SI:
             *(int64_t*)*sp++ = r0; // store int
             break;
         case SC:
-            r0 = *(char*)* sp++ = r0; // store char
+            *(char*)*sp++ = r0; // store char
             break;
         case PSH:
             *--sp = r0; // push
@@ -159,7 +162,7 @@ int amacc_vm(int argc, char* argv[])
         case PRTF:
             assert((pc + 1)->ir == ADJ);
             nu = (pc + 1)->arg;
-            args = malloc(sizeof(intptr_t) * nu);
+            args = malloc(sizeof(uint64_t*) * nu);
             fetch_args(sp, args, nu);
             char pr_buff[MAX_BUF];
             fstring(pr_buff, MAX_BUF, (char*)args[0], args + 1 , nu - 1);
@@ -195,7 +198,7 @@ int amacc_vm(int argc, char* argv[])
         case SNPR:
             assert((pc + 1)->ir == ADJ);
             nu = (pc + 1)->arg;
-            args = malloc(sizeof(intptr_t) * nu);
+            args = malloc(sizeof(int64_t) * nu);
             fetch_args(sp, args, nu);
             assert(nu > 3);
             r0 = fstring((char*)sp[nu - 1], sp[nu - 2], (char*)sp[nu - 3], args + 3, nu - 3);

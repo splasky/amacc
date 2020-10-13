@@ -1,1 +1,3 @@
 break main
+break amacc_vm
+break /home/splasky/Desktop/research-project/compiler-research/amacc/vm/vm.c:81

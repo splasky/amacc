@@ -11,7 +11,7 @@
  *
  * @return Length of new string
  */
-int fstring(char* str, size_t size, char* fmt, intptr_t args[], int nu)
+int fstring(char* str, size_t size, char* fmt, uint64_t* args[], int nu)
 {
     int old_len = strlen(fmt);
     int buf_len = size;
@@ -52,7 +52,7 @@ int fstring(char* str, size_t size, char* fmt, intptr_t args[], int nu)
             case 's':
                 memset(f, '\0', 1024);
                 strncpy(f, fmt_start, fmt_end - fmt_start + 1);
-                replace_len = sprintf(str_fmt, f, (char*)((intptr_t*)*args++));
+                replace_len = sprintf(str_fmt, f, (char*)((uint64_t*)*args++));
                 if (replace_len < 0) return -1;
                 memcpy(str, str_fmt, replace_len);
                 str += replace_len;

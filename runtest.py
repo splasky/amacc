@@ -69,9 +69,9 @@ def _generate_test(test_name, test_file, extra_cflags):
         sp.run(qemuCmd + amacc_params)
 
         # run amacc in vm mode
-        proc = sp.run([amacc_vm] + ["tests/" + test_file_name + ".ll"], timeout=10, stdout=sp.PIPE)
+        proc = sp.run([amacc_vm] + ["tests/" + test_file_name + ".ll"] + args, timeout=10, stdout=sp.PIPE)
         vm_out, vm_err, vm_retcode = proc.stdout, proc.stderr, proc.returncode
-        self.assertEqual(vm_out.decode('utf-8'), gcc_out.decode('utf-8'))
+        self.assertEqual(vm_out.decode(), gcc_out.decode())
         self.assertEqual(vm_retcode, gcc_retcode)
 
     return test

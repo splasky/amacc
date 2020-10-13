@@ -1,6 +1,4 @@
-# CFLAGS = -Wall -Wno-misleading-indentation
-CFLAGS = -g -no-pie -fno-pie -fsigned-char -Wall -Wno-misleading-indentation
-#CFLAGS = -g -no-pie -fno-pie -fsigned-char -Wall -Wno-misleading-indentation -I./MyLib/include
+CFLAGS = -O0 -Wall -Wno-misleading-indentation -g3
 OBJ_DIR = elf
 TEST_DIR = tests
 TEST_SRC = $(wildcard $(TEST_DIR)/*.c)

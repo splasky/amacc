@@ -61,14 +61,14 @@ struct code_t* get_code_entry(int line)
     return NULL;
 }
 
-int fetch_args(intptr_t* sp, intptr_t* args, int32_t nu_args)
+int fetch_args(uint64_t* sp, uint64_t* args, int32_t nu_args)
 {
     struct str_t* tstr;
-    intptr_t* ptr = args;
+    uint64_t* ptr = args;
     for (int i = nu_args - 1; i >= 0; --i) {
         tstr = get_str_entry(sp[i]);
         if (tstr != NULL) {
-            *ptr++ = (intptr_t)tstr->str;
+            *ptr++ = tstr->str;
         } else {
             *ptr++ = sp[i];
         }
